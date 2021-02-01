@@ -20,6 +20,8 @@
       - zathura-pdf-poppler
       - signal-desktop
       - neovim
+      - docker
+      - nvidia-docker
     pip_packs:
         - numpy
         - pandas
