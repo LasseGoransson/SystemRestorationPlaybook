@@ -1,0 +1,76 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    packages:
+      - htop
+      - nload
+      - git
+      - rofi
+      - polybar
+      - arandr
+      - borgbackup
+      - cpupower
+      - cpupower-gui
+      - discord
+      - nitrogen
+      - xclip
+      - spotify
+      - zathura
+      - zathura-pdf-poppler
+      - signal-desktop
+      - neovim
+    pip_packs:
+        - numpy
+        - pandas
+        - matplotlib
+
+  tasks:
+
+    - name: Ensure Yay
+      pacman:
+        name: yay
+        state: present
+
+    - name: Update system
+      yay:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install Packages
+      yay:
+        name: "{{ packages }}"
+        state: present
+        update_cache: true
+
+    - name: Add private SSH keys
+      copy:
+        src: id_rsa
+        dest: ~/.ssh/id_rsa
+        owner: lasg
+        group: lasg
+        mode: '0600'
+
+    - name: Add public SSH keys
+      copy:
+        src: id_rsa.pub
+        dest: ~/.ssh/id_rsa.pub
+        owner: lasg
+        group: lasg
+        mode: '0600'
+
+    - name: Clone Dotfiles repo
+      git:
+        repo: git@github.com:LasseGoransson/dotfile.git
+        dest: /home/lasg/dotfiles
+        bare: yes
+    - name: Move Dotfiles to correct places
+      command: "/usr/bin/git --git-dir=$HOME/dotfiles/ --work-tree=$HOME checkout"
+
+    - name: Generate dotfiles
+      command: "bash ~/.cfggen/runall.sh"
+
+    - name: Install python Packages
+      pip:
+        name: "{{ pip_packs }}"
+        state: present
